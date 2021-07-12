@@ -180,7 +180,7 @@ export default class extends PureComponent {
     })
   }
 
-  loadSaveData = (saveData, immediate = this.props.immediateLoading) => {
+  loadSaveData = (saveData, immediate = this.props.immediateLoading, callback) => {
     if (typeof saveData !== 'string') {
       throw new Error('saveData needs to be of type string!')
     }
@@ -197,7 +197,7 @@ export default class extends PureComponent {
       this.simulateDrawingLines({
         lines,
         immediate
-      })
+      }, callback)
     } else {
       // we need to rescale the lines based on saved & current dimensions
       const scaleX = this.props.canvasWidth / width
@@ -214,15 +214,17 @@ export default class extends PureComponent {
           brushRadius: line.brushRadius * scaleAvg
         })),
         immediate
-      })
+      }, callback)
     }
   }
 
-  simulateDrawingLines = ({ lines, immediate }) => {
+  simulateDrawingLines = ({ lines, immediate }, callback) => {
     // Simulate live-drawing of the loaded lines
     // TODO use a generator
     let curTime = 0
     let timeoutGap = immediate ? 0 : this.props.loadTimeOffset
+
+    let linesDone = 0
 
     lines.forEach((line) => {
       const { points, brushColor, brushRadius } = line
@@ -242,6 +244,7 @@ export default class extends PureComponent {
         return
       }
 
+     
       // Use timeout to draw
       for (let i = 1; i < points.length; i++) {
         curTime += timeoutGap
@@ -251,6 +254,10 @@ export default class extends PureComponent {
             brushColor,
             brushRadius
           })
+          linesDone += 1
+          if(linesDone === lines.length){
+            callback()
+          }
         }, curTime)
       }
 
@@ -259,6 +266,7 @@ export default class extends PureComponent {
         // Save this line with its props instead of this.props
         this.points = points
         this.saveLine({ brushColor, brushRadius })
+
       }, curTime)
     })
   }
