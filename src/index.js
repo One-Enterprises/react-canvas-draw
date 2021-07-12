@@ -224,6 +224,7 @@ export default class extends PureComponent {
     let curTime = 0
     let timeoutGap = immediate ? 0 : this.props.loadTimeOffset
 
+
     lines.forEach((line) => {
       const { points, brushColor, brushRadius } = line
 
@@ -242,6 +243,7 @@ export default class extends PureComponent {
         return
       }
 
+     
       // Use timeout to draw
       for (let i = 1; i < points.length; i++) {
         curTime += timeoutGap
@@ -259,6 +261,7 @@ export default class extends PureComponent {
         // Save this line with its props instead of this.props
         this.points = points
         this.saveLine({ brushColor, brushRadius })
+
       }, curTime)
     })
   }
